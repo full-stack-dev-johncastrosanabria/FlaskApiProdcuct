@@ -1,5 +1,5 @@
 from app.database import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class User(db.Model):
@@ -10,8 +10,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False, unique=True, index=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, onupdate=lambda: datetime.now(timezone.utc))
     
     # Relación con órdenes
     orders = db.relationship('Order', backref='user', lazy=True, cascade='all, delete-orphan')
@@ -61,7 +61,7 @@ class User(db.Model):
         for key, value in kwargs.items():
             if hasattr(self, key) and key not in ['id', 'created_at']:
                 setattr(self, key, value)
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
         db.session.commit()
         return self
     

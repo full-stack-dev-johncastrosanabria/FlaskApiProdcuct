@@ -3,7 +3,7 @@ import numpy as np
 from sqlalchemy import func, desc, and_, or_, extract, case
 from app.database import db
 from app.models import Order, OrderItem, Product, User, Category
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple, Any
 from collections import defaultdict
 
@@ -16,37 +16,56 @@ class BusinessIntelligence:
         """
         Comprehensive KPI dashboard with business metrics
         """
-        current_date = datetime.utcnow()
+        current_date = datetime.now(timezone.utc)
+        
+        # Get all metrics
+        revenue_metrics = BusinessIntelligence._get_revenue_metrics(current_date)
+        order_metrics = BusinessIntelligence._get_order_metrics(current_date)
+        customer_metrics = BusinessIntelligence._get_customer_metrics()
+        product_metrics = BusinessIntelligence._get_product_metrics()
+        
+        return {
+            'revenue_metrics': revenue_metrics,
+            'order_metrics': order_metrics,
+            'customer_metrics': customer_metrics,
+            'product_metrics': product_metrics
+        }
+    
+    @staticmethod
+    def _get_revenue_metrics(current_date: datetime) -> Dict:
+        """Get revenue metrics for different periods"""
         last_month = current_date - timedelta(days=30)
         last_week = current_date - timedelta(days=7)
         yesterday = current_date - timedelta(days=1)
         
-        # Revenue metrics
         total_revenue = BusinessIntelligence._get_revenue_for_period()
         monthly_revenue = BusinessIntelligence._get_revenue_for_period(start_date=last_month)
         weekly_revenue = BusinessIntelligence._get_revenue_for_period(start_date=last_week)
         daily_revenue = BusinessIntelligence._get_revenue_for_period(start_date=yesterday)
         
-        # Order metrics
-        total_orders = BusinessIntelligence._get_orders_for_period()
-        monthly_orders = BusinessIntelligence._get_orders_for_period(start_date=last_month)
-        weekly_orders = BusinessIntelligence._get_orders_for_period(start_date=last_week)
-        
-        # Customer metrics
-        total_customers = db.session.query(func.count(User.id)).scalar() or 0
-        active_customers = BusinessIntelligence._get_active_customers(days=30)
-        new_customers = BusinessIntelligence._get_new_customers(days=30)
-        
-        # Product metrics
-        total_products = db.session.query(func.count(Product.id)).scalar() or 0
-        active_products = BusinessIntelligence._get_active_products(days=30)
-        
-        # Calculate growth rates
         prev_month_revenue = BusinessIntelligence._get_revenue_for_period(
             start_date=current_date - timedelta(days=60),
             end_date=last_month
         )
         revenue_growth = BusinessIntelligence._calculate_growth_rate(monthly_revenue, prev_month_revenue)
+        
+        return {
+            'total_revenue': float(total_revenue),
+            'monthly_revenue': float(monthly_revenue),
+            'weekly_revenue': float(weekly_revenue),
+            'daily_revenue': float(daily_revenue),
+            'revenue_growth_rate': float(revenue_growth)
+        }
+    
+    @staticmethod
+    def _get_order_metrics(current_date: datetime) -> Dict:
+        """Get order metrics for different periods"""
+        last_month = current_date - timedelta(days=30)
+        last_week = current_date - timedelta(days=7)
+        
+        total_orders = BusinessIntelligence._get_orders_for_period()
+        monthly_orders = BusinessIntelligence._get_orders_for_period(start_date=last_month)
+        weekly_orders = BusinessIntelligence._get_orders_for_period(start_date=last_week)
         
         prev_month_orders = BusinessIntelligence._get_orders_for_period(
             start_date=current_date - timedelta(days=60),
@@ -54,37 +73,45 @@ class BusinessIntelligence:
         )
         order_growth = BusinessIntelligence._calculate_growth_rate(monthly_orders, prev_month_orders)
         
-        # Advanced metrics
+        monthly_revenue = BusinessIntelligence._get_revenue_for_period(
+            start_date=last_month
+        )
         avg_order_value = monthly_revenue / monthly_orders if monthly_orders > 0 else 0
+        
+        return {
+            'total_orders': total_orders,
+            'monthly_orders': monthly_orders,
+            'weekly_orders': weekly_orders,
+            'avg_order_value': float(avg_order_value),
+            'order_growth_rate': float(order_growth)
+        }
+    
+    @staticmethod
+    def _get_customer_metrics() -> Dict:
+        """Get customer metrics"""
+        total_customers = db.session.query(func.count(User.id)).scalar() or 0
+        active_customers = BusinessIntelligence._get_active_customers(days=30)
+        new_customers = BusinessIntelligence._get_new_customers(days=30)
         customer_lifetime_value = BusinessIntelligence._calculate_clv()
         churn_rate = BusinessIntelligence._calculate_churn_rate()
         
         return {
-            'revenue_metrics': {
-                'total_revenue': float(total_revenue),
-                'monthly_revenue': float(monthly_revenue),
-                'weekly_revenue': float(weekly_revenue),
-                'daily_revenue': float(daily_revenue),
-                'revenue_growth_rate': float(revenue_growth)
-            },
-            'order_metrics': {
-                'total_orders': total_orders,
-                'monthly_orders': monthly_orders,
-                'weekly_orders': weekly_orders,
-                'avg_order_value': float(avg_order_value),
-                'order_growth_rate': float(order_growth)
-            },
-            'customer_metrics': {
-                'total_customers': total_customers,
-                'active_customers': active_customers,
-                'new_customers': new_customers,
-                'customer_lifetime_value': float(customer_lifetime_value),
-                'churn_rate': float(churn_rate)
-            },
-            'product_metrics': {
-                'total_products': total_products,
-                'active_products': active_products
-            }
+            'total_customers': total_customers,
+            'active_customers': active_customers,
+            'new_customers': new_customers,
+            'customer_lifetime_value': float(customer_lifetime_value),
+            'churn_rate': float(churn_rate)
+        }
+    
+    @staticmethod
+    def _get_product_metrics() -> Dict:
+        """Get product metrics"""
+        total_products = db.session.query(func.count(Product.id)).scalar() or 0
+        active_products = BusinessIntelligence._get_active_products(days=30)
+        
+        return {
+            'total_products': total_products,
+            'active_products': active_products
         }
     
     @staticmethod
@@ -234,7 +261,7 @@ class BusinessIntelligence:
         if not customer_data:
             return {'error': 'No customer data available'}
         
-        current_date = datetime.utcnow()
+        current_date = datetime.now(timezone.utc)
         
         # Convert to DataFrame
         df = pd.DataFrame([
@@ -256,22 +283,24 @@ class BusinessIntelligence:
         
         # Segment customers
         def segment_customer(row):
-            if row['order_count'] == 0:
+            order_count = row['order_count']
+            days_since_last = row['days_since_last_order']
+            
+            if order_count == 0:
                 return 'Prospects'
-            elif row['order_count'] == 1:
-                if row['days_since_last_order'] <= 30:
-                    return 'New Customers'
-                else:
-                    return 'One-time Buyers'
-            elif row['order_count'] >= 2:
-                if row['days_since_last_order'] <= 30:
+            
+            if order_count == 1:
+                return 'New Customers' if days_since_last <= 30 else 'One-time Buyers'
+            
+            if order_count >= 2:
+                if days_since_last <= 30:
                     return 'Active Customers'
-                elif row['days_since_last_order'] <= 90:
+                elif days_since_last <= 90:
                     return 'At Risk'
                 else:
                     return 'Inactive Customers'
-            else:
-                return 'Unknown'
+            
+            return 'Unknown'
         
         df['segment'] = df.apply(segment_customer, axis=1)
         
@@ -412,21 +441,21 @@ class BusinessIntelligence:
     
     @staticmethod
     def _get_active_customers(days=30):
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
         return db.session.query(func.count(func.distinct(Order.user_id))).filter(
             and_(Order.created_at >= cutoff_date, Order.status == 'completed')
         ).scalar() or 0
     
     @staticmethod
     def _get_new_customers(days=30):
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
         return db.session.query(func.count(User.id)).filter(
             User.created_at >= cutoff_date
         ).scalar() or 0
     
     @staticmethod
     def _get_active_products(days=30):
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
         return db.session.query(func.count(func.distinct(OrderItem.product_id))).join(
             Order, OrderItem.order_id == Order.id
         ).filter(
@@ -465,7 +494,7 @@ class BusinessIntelligence:
     @staticmethod
     def _calculate_churn_rate():
         # Customers who haven't ordered in the last 90 days
-        cutoff_date = datetime.utcnow() - timedelta(days=90)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=90)
         
         total_customers = db.session.query(func.count(func.distinct(Order.user_id))).filter(
             Order.status == 'completed'

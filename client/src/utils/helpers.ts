@@ -86,37 +86,55 @@ export function generateId(): string {
   return Math.random().toString(36).substr(2, 9);
 }
 
+// Helper function to validate a single field
+function validateField(value: any, rule: any, fieldLabel: string): string[] {
+  const errors: string[] = [];
+
+  // Check required
+  if (rule.required && (!value || value.toString().trim() === '')) {
+    errors.push(`El campo ${fieldLabel} es requerido`);
+    return errors;
+  }
+
+  if (!value) return errors; // Skip other validations if no value
+
+  // Validate email
+  if (rule.type === 'email' && !isValidEmail(value)) {
+    errors.push(`El campo ${fieldLabel} debe ser un email válido`);
+  }
+
+  // Validate number
+  if (rule.type === 'number' && isNaN(Number(value))) {
+    errors.push(`El campo ${fieldLabel} debe ser un número`);
+  }
+
+  // Validate min/max
+  const numValue = Number(value);
+  if (rule.min !== undefined && numValue < rule.min) {
+    errors.push(`El campo ${fieldLabel} debe ser mayor a ${rule.min}`);
+  }
+
+  if (rule.max !== undefined && numValue > rule.max) {
+    errors.push(`El campo ${fieldLabel} debe ser menor a ${rule.max}`);
+  }
+
+  // Validate minLength
+  if (rule.minLength && value.toString().length < rule.minLength) {
+    errors.push(`El campo ${fieldLabel} debe tener al menos ${rule.minLength} caracteres`);
+  }
+
+  return errors;
+}
+
 // Validar formulario
 export function validateForm(formData: Record<string, any>, rules: Record<string, any>): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
 
   for (const [field, rule] of Object.entries(rules)) {
     const value = formData[field];
-
-    if (rule.required && (!value || value.toString().trim() === '')) {
-      errors.push(`El campo ${rule.label || field} es requerido`);
-      continue;
-    }
-
-    if (value && rule.type === 'email' && !isValidEmail(value)) {
-      errors.push(`El campo ${rule.label || field} debe ser un email válido`);
-    }
-
-    if (value && rule.type === 'number' && isNaN(Number(value))) {
-      errors.push(`El campo ${rule.label || field} debe ser un número`);
-    }
-
-    if (value && rule.min && Number(value) < rule.min) {
-      errors.push(`El campo ${rule.label || field} debe ser mayor a ${rule.min}`);
-    }
-
-    if (value && rule.max && Number(value) > rule.max) {
-      errors.push(`El campo ${rule.label || field} debe ser menor a ${rule.max}`);
-    }
-
-    if (value && rule.minLength && value.toString().length < rule.minLength) {
-      errors.push(`El campo ${rule.label || field} debe tener al menos ${rule.minLength} caracteres`);
-    }
+    const fieldLabel = rule.label || field;
+    const fieldErrors = validateField(value, rule, fieldLabel);
+    errors.push(...fieldErrors);
   }
 
   return {

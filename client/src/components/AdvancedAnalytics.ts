@@ -1,7 +1,7 @@
 import { ApiService } from '../services/api';
 import { toast } from '../utils/toast';
-import { ChartRenderer, createSimpleChart } from '../utils/charts';
-import { formatPrice, formatNumber } from '../utils/helpers';
+import { ChartRenderer } from '../utils/charts';
+import { formatPrice } from '../utils/helpers';
 import type { 
   SalesForecast, 
   CohortAnalysis, 
@@ -257,7 +257,6 @@ export class AdvancedAnalytics {
             </thead>
             <tbody>
               ${data.map(cohort => {
-                const periods = Object.keys(cohort.retention_rates).sort();
                 return `
                   <tr>
                     <td><strong>${cohort.cohort}</strong></td>

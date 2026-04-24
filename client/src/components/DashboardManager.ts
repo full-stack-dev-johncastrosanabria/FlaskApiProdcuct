@@ -16,8 +16,10 @@ export class DashboardManager {
       console.error('Dashboard container not found');
       return;
     }
+  }
 
-    this.loadDashboard();
+  async init(): Promise<void> {
+    await this.loadDashboard();
   }
 
   async loadDashboard(): Promise<void> {

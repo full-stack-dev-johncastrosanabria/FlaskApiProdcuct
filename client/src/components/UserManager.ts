@@ -23,7 +23,10 @@ export class UserManager {
     }
 
     this.setupEventListeners();
-    this.loadUsers();
+  }
+
+  async init(): Promise<void> {
+    await this.loadUsers();
   }
 
   private setupEventListeners(): void {

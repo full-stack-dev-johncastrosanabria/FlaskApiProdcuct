@@ -6,6 +6,9 @@ from app.database import db
 
 bp = Blueprint('users', __name__, url_prefix='/api/users')
 
+# Constants
+USER_NOT_FOUND = 'Usuario no encontrado'
+
 
 @bp.route('', methods=['GET'])
 def get_users():
@@ -23,7 +26,7 @@ def get_user(user_id):
     user = User.get_by_id(user_id)
     
     if not user:
-        return error_response('Usuario no encontrado', 404)
+        return error_response(USER_NOT_FOUND, 404)
     
     return success_response(data=user.to_dict())
 
@@ -66,7 +69,7 @@ def update_user(user_id):
     user = User.get_by_id(user_id)
     
     if not user:
-        return error_response('Usuario no encontrado', 404)
+        return error_response(USER_NOT_FOUND, 404)
     
     data = request.get_json()
     
@@ -92,7 +95,7 @@ def delete_user(user_id):
     user = User.get_by_id(user_id)
     
     if not user:
-        return error_response('Usuario no encontrado', 404)
+        return error_response(USER_NOT_FOUND, 404)
     
     try:
         user_data = user.to_dict()

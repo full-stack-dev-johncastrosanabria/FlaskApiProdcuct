@@ -5,6 +5,9 @@ from app.database import db
 
 bp = Blueprint('orders', __name__, url_prefix='/api/orders')
 
+# Constants
+ORDER_NOT_FOUND = 'Orden no encontrada'
+
 
 @bp.route('', methods=['GET'])
 def get_orders():
@@ -28,7 +31,7 @@ def get_order(order_id):
     order = Order.get_by_id(order_id)
     
     if not order:
-        return error_response('Orden no encontrada', 404)
+        return error_response(ORDER_NOT_FOUND, 404)
     
     return success_response(data=order.to_dict())
 
@@ -115,7 +118,7 @@ def update_order(order_id):
     order = Order.get_by_id(order_id)
     
     if not order:
-        return error_response('Orden no encontrada', 404)
+        return error_response(ORDER_NOT_FOUND, 404)
     
     data = request.get_json()
     
@@ -143,7 +146,7 @@ def delete_order(order_id):
     order = Order.get_by_id(order_id)
     
     if not order:
-        return error_response('Orden no encontrada', 404)
+        return error_response(ORDER_NOT_FOUND, 404)
     
     try:
         order_data = order.to_dict()

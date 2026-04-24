@@ -1,6 +1,6 @@
 import { ApiService } from '../services/api';
 import { toast } from '../utils/toast';
-import { ChartRenderer, createSimpleChart } from '../utils/charts';
+import { ChartRenderer } from '../utils/charts';
 import { formatPrice, formatNumber } from '../utils/helpers';
 import type { 
   KPIDashboard, 

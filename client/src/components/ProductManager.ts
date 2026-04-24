@@ -24,8 +24,11 @@ export class ProductManager {
     }
 
     this.setupEventListeners();
-    this.loadCategories();
-    this.loadProducts();
+  }
+
+  async init(): Promise<void> {
+    await this.loadCategories();
+    await this.loadProducts();
   }
 
   private setupEventListeners(): void {

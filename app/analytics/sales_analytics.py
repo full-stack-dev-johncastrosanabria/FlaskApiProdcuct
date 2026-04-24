@@ -1,7 +1,7 @@
 from sqlalchemy import func, desc
 from app.database import db
 from app.models import Order, OrderItem, Product, User, Category
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 class SalesAnalytics:
@@ -163,7 +163,7 @@ class SalesAnalytics:
         avg_order = total_sales / total_orders if total_orders > 0 else 0
         
         # Ventas del último mes
-        last_month = datetime.utcnow() - timedelta(days=30)
+        last_month = datetime.now(timezone.utc) - timedelta(days=30)
         last_month_sales = SalesAnalytics.get_total_sales(start_date=last_month)
         
         # Órdenes pendientes

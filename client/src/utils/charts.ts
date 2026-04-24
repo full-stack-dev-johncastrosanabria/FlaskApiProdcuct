@@ -1,4 +1,4 @@
-import type { ChartConfig, ChartDataPoint, TimeSeriesDataPoint } from '../types';
+import type { ChartDataPoint, TimeSeriesDataPoint } from '../types';
 
 /**
  * Utilidades profesionales para visualización de datos

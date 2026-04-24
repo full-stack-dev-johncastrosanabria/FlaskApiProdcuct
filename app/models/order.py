@@ -1,5 +1,5 @@
 from app.database import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class Order(db.Model):
@@ -11,8 +11,8 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     total = db.Column(db.Numeric(10, 2), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='pending')  # pending, completed, cancelled
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, onupdate=lambda: datetime.now(timezone.utc))
     
     # Relación con items de la orden
     items = db.relationship('OrderItem', backref='order', lazy=True, cascade='all, delete-orphan')
@@ -63,7 +63,7 @@ class Order(db.Model):
         for key, value in kwargs.items():
             if hasattr(self, key) and key not in ['id', 'created_at']:
                 setattr(self, key, value)
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
         db.session.commit()
         return self
     

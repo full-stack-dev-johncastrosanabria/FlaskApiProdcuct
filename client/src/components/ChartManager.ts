@@ -1,4 +1,4 @@
-import { ChartRenderer, createSimpleChart } from '../utils/charts';
+import { ChartRenderer } from '../utils/charts';
 import type { ChartConfig, ChartDataPoint, TimeSeriesDataPoint } from '../types';
 
 /**
@@ -36,16 +36,14 @@ export class ChartManager {
           ChartRenderer.createLineChart(
             container,
             config.data as TimeSeriesDataPoint[],
-            config.title,
-            config.options
+            config.title
           );
           break;
         case 'bar':
           ChartRenderer.createBarChart(
             container,
             config.data as ChartDataPoint[],
-            config.title,
-            config.options
+            config.title
           );
           break;
         case 'pie':
@@ -55,7 +53,7 @@ export class ChartManager {
             config.data as ChartDataPoint[],
             config.title,
             { 
-              showLabels: config.options?.showLegend !== false,
+              showLabels: true,
               innerRadius: config.type === 'doughnut' ? 40 : 0
             }
           );
@@ -65,8 +63,7 @@ export class ChartManager {
           ChartRenderer.createLineChart(
             container,
             config.data as TimeSeriesDataPoint[],
-            config.title,
-            config.options
+            config.title
           );
           break;
         default:
@@ -235,13 +232,11 @@ export class ChartManager {
     if (type === 'line') {
       // Combinar todos los datos en una serie temporal
       const allData: TimeSeriesDataPoint[] = [];
-      datasets.forEach((dataset, index) => {
+      datasets.forEach((dataset) => {
         (dataset.data as TimeSeriesDataPoint[]).forEach(point => {
           allData.push({
             ...point,
-            value: point.value,
-            // Agregar identificador del dataset
-            dataset: dataset.label
+            value: point.value
           });
         });
       });

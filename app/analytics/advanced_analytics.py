@@ -3,7 +3,7 @@ import numpy as np
 from sqlalchemy import func, desc, and_, or_, extract
 from app.database import db
 from app.models import Order, OrderItem, Product, User, Category
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple, Any
 import json
 
@@ -83,7 +83,7 @@ class AdvancedAnalytics:
         RFM (Recency, Frequency, Monetary) Analysis for customer segmentation
         """
         # Calculate RFM metrics
-        current_date = datetime.utcnow()
+        current_date = datetime.now(timezone.utc)
         
         rfm_data = db.session.query(
             Order.user_id,

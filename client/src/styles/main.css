@@ -885,7 +885,7 @@ header h1 {
   margin-right: var(--spacing-2);
   vertical-align: middle;
   border-top: 2px dashed var(--error-color);
-  background: none;
+}
 }
 
 /* Gráfico de barras */

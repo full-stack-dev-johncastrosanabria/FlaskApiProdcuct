@@ -6,6 +6,9 @@ from app.database import db
 
 bp = Blueprint('products', __name__, url_prefix='/api/products')
 
+# Constants
+PRODUCT_NOT_FOUND = 'Producto no encontrado'
+
 
 @bp.route('', methods=['GET'])
 def get_products():
@@ -31,7 +34,7 @@ def get_product(product_id):
     product = Product.get_by_id(product_id)
     
     if not product:
-        return error_response('Producto no encontrado', 404)
+        return error_response(PRODUCT_NOT_FOUND, 404)
     
     return success_response(data=product.to_dict())
 
@@ -73,7 +76,7 @@ def update_product(product_id):
     product = Product.get_by_id(product_id)
     
     if not product:
-        return error_response('Producto no encontrado', 404)
+        return error_response(PRODUCT_NOT_FOUND, 404)
     
     data = request.get_json()
     
@@ -99,7 +102,7 @@ def delete_product(product_id):
     product = Product.get_by_id(product_id)
     
     if not product:
-        return error_response('Producto no encontrado', 404)
+        return error_response(PRODUCT_NOT_FOUND, 404)
     
     try:
         product_data = product.to_dict()
