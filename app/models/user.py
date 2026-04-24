@@ -1,19 +1,23 @@
+from app.database import db
 from datetime import datetime
-import uuid
 
 
-class User:
-    """Modelo de Usuario"""
+class User(db.Model):
+    """Modelo de Usuario con SQLAlchemy"""
     
-    # Simulación de base de datos en memoria
-    _users = {}
+    __tablename__ = 'users'
     
-    def __init__(self, name, email, user_id=None):
-        self.id = user_id or str(uuid.uuid4())
-        self.name = name
-        self.email = email
-        self.created_at = datetime.now().isoformat()
-        self.updated_at = None
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), nullable=False, unique=True, index=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    
+    # Relación con órdenes
+    orders = db.relationship('Order', backref='user', lazy=True, cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<User {self.name}>'
     
     def to_dict(self):
         """Convierte el objeto a diccionario"""
@@ -21,13 +25,35 @@ class User:
             'id': self.id,
             'name': self.name,
             'email': self.email,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'total_orders': len(self.orders) if self.orders else 0
         }
+    
+    @classmethod
+    def get_all(cls):
+        """Obtiene todos los usuarios"""
+        return cls.query.all()
+    
+    @classmethod
+    def get_by_id(cls, user_id):
+        """Obtiene un usuario por ID"""
+        return cls.query.get(user_id)
+    
+    @classmethod
+    def get_by_email(cls, email):
+        """Obtiene un usuario por email"""
+        return cls.query.filter_by(email=email).first()
+    
+    @classmethod
+    def exists_email(cls, email):
+        """Verifica si un email ya existe"""
+        return cls.query.filter_by(email=email).first() is not None
     
     def save(self):
         """Guarda el usuario en la base de datos"""
-        User._users[self.id] = self
+        db.session.add(self)
+        db.session.commit()
         return self
     
     def update(self, **kwargs):
@@ -35,35 +61,12 @@ class User:
         for key, value in kwargs.items():
             if hasattr(self, key) and key not in ['id', 'created_at']:
                 setattr(self, key, value)
-        self.updated_at = datetime.now().isoformat()
+        self.updated_at = datetime.utcnow()
+        db.session.commit()
         return self
     
     def delete(self):
         """Elimina el usuario de la base de datos"""
-        if self.id in User._users:
-            del User._users[self.id]
-            return True
-        return False
-    
-    @classmethod
-    def get_all(cls):
-        """Obtiene todos los usuarios"""
-        return list(cls._users.values())
-    
-    @classmethod
-    def get_by_id(cls, user_id):
-        """Obtiene un usuario por ID"""
-        return cls._users.get(user_id)
-    
-    @classmethod
-    def get_by_email(cls, email):
-        """Obtiene un usuario por email"""
-        for user in cls._users.values():
-            if user.email == email:
-                return user
-        return None
-    
-    @classmethod
-    def exists_email(cls, email):
-        """Verifica si un email ya existe"""
-        return cls.get_by_email(email) is not None
+        db.session.delete(self)
+        db.session.commit()
+        return True

@@ -1,7 +1,8 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from app.models import User
 from app.utils.validators import validate_user_data
 from app.utils.responses import success_response, error_response
+from app.database import db
 
 bp = Blueprint('users', __name__, url_prefix='/api/users')
 
@@ -16,7 +17,7 @@ def get_users():
     )
 
 
-@bp.route('/<user_id>', methods=['GET'])
+@bp.route('/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     """Obtiene un usuario específico por ID"""
     user = User.get_by_id(user_id)
@@ -42,20 +43,24 @@ def create_user():
         return error_response('El email ya está registrado', 400)
     
     # Crear y guardar usuario
-    user = User(
-        name=data['name'],
-        email=data['email']
-    )
-    user.save()
-    
-    return success_response(
-        data=user.to_dict(),
-        message='Usuario creado exitosamente',
-        status_code=201
-    )
+    try:
+        user = User(
+            name=data['name'],
+            email=data['email']
+        )
+        user.save()
+        
+        return success_response(
+            data=user.to_dict(),
+            message='Usuario creado exitosamente',
+            status_code=201
+        )
+    except Exception as e:
+        db.session.rollback()
+        return error_response(f'Error al crear usuario: {str(e)}', 500)
 
 
-@bp.route('/<user_id>', methods=['PUT'])
+@bp.route('/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
     """Actualiza un usuario existente"""
     user = User.get_by_id(user_id)
@@ -68,16 +73,20 @@ def update_user(user_id):
     if not data:
         return error_response('No se proporcionaron datos para actualizar', 400)
     
-    # Actualizar usuario
-    user.update(**data)
-    
-    return success_response(
-        data=user.to_dict(),
-        message='Usuario actualizado exitosamente'
-    )
+    try:
+        # Actualizar usuario
+        user.update(**data)
+        
+        return success_response(
+            data=user.to_dict(),
+            message='Usuario actualizado exitosamente'
+        )
+    except Exception as e:
+        db.session.rollback()
+        return error_response(f'Error al actualizar usuario: {str(e)}', 500)
 
 
-@bp.route('/<user_id>', methods=['DELETE'])
+@bp.route('/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     """Elimina un usuario"""
     user = User.get_by_id(user_id)
@@ -85,10 +94,14 @@ def delete_user(user_id):
     if not user:
         return error_response('Usuario no encontrado', 404)
     
-    user_data = user.to_dict()
-    user.delete()
-    
-    return success_response(
-        data=user_data,
-        message='Usuario eliminado exitosamente'
-    )
+    try:
+        user_data = user.to_dict()
+        user.delete()
+        
+        return success_response(
+            data=user_data,
+            message='Usuario eliminado exitosamente'
+        )
+    except Exception as e:
+        db.session.rollback()
+        return error_response(f'Error al eliminar usuario: {str(e)}', 500)

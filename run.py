@@ -1,5 +1,9 @@
 import os
+from dotenv import load_dotenv
 from app import create_app
+
+# Cargar variables de entorno
+load_dotenv()
 
 # Obtener el entorno de la variable de entorno o usar 'development' por defecto
 config_name = os.environ.get('FLASK_ENV', 'development')

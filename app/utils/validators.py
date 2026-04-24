@@ -27,7 +27,7 @@ def validate_product_data(data):
     if not data:
         return False, 'No se proporcionaron datos'
     
-    required_fields = ['name', 'price', 'category']
+    required_fields = ['name', 'price', 'category_id']
     
     for field in required_fields:
         if field not in data or not data[field]:
@@ -40,5 +40,11 @@ def validate_product_data(data):
             return False, 'El precio debe ser mayor a 0'
     except (ValueError, TypeError):
         return False, 'El precio debe ser un número válido'
+    
+    # Validar que category_id sea un número
+    try:
+        int(data['category_id'])
+    except (ValueError, TypeError):
+        return False, 'El category_id debe ser un número válido'
     
     return True, None

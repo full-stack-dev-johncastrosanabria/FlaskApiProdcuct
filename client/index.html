@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API REST - Cliente Web</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 API REST con Flask</h1>
+            <p class="subtitle">Cliente Web de Demostración</p>
+            <div class="health-status" id="healthStatus">
+                <span class="status-indicator"></span>
+                <span class="status-text">Verificando conexión...</span>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="users">👤 Usuarios</button>
+            <button class="tab-button" data-tab="products">📦 Productos</button>
+        </div>
+
+        <!-- Tab de Usuarios -->
+        <div id="users" class="tab-content active">
+            <div class="section">
+                <h2>Crear Usuario</h2>
+                <form id="createUserForm" class="form">
+                    <div class="form-group">
+                        <label for="userName">Nombre:</label>
+                        <input type="text" id="userName" required placeholder="Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label for="userEmail">Email:</label>
+                        <input type="email" id="userEmail" required placeholder="juan@example.com">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>Lista de Usuarios</h2>
+                    <button class="btn btn-secondary" onclick="loadUsers()">🔄 Actualizar</button>
+                </div>
+                <div id="usersList" class="items-list">
+                    <p class="loading">Cargando usuarios...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab de Productos -->
+        <div id="products" class="tab-content">
+            <div class="section">
+                <h2>Crear Producto</h2>
+                <form id="createProductForm" class="form">
+                    <div class="form-group">
+                        <label for="productName">Nombre:</label>
+                        <input type="text" id="productName" required placeholder="Laptop">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productPrice">Precio:</label>
+                            <input type="number" id="productPrice" step="0.01" required placeholder="999.99">
+                        </div>
+                        <div class="form-group">
+                            <label for="productStock">Stock:</label>
+                            <input type="number" id="productStock" value="0" placeholder="10">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Categoría:</label>
+                        <input type="text" id="productCategory" required placeholder="electrónica">
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">Descripción:</label>
+                        <textarea id="productDescription" rows="3" placeholder="Descripción del producto"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Crear Producto</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>Lista de Productos</h2>
+                    <div class="filters">
+                        <input type="number" id="minPrice" placeholder="Precio mín" class="filter-input">
+                        <input type="number" id="maxPrice" placeholder="Precio máx" class="filter-input">
+                        <input type="text" id="categoryFilter" placeholder="Categoría" class="filter-input">
+                        <button class="btn btn-secondary" onclick="loadProducts()">🔍 Filtrar</button>
+                    </div>
+                </div>
+                <div id="productsList" class="items-list">
+                    <p class="loading">Cargando productos...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Edición -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="modalTitle">Editar</h2>
+                <form id="editForm" class="form">
+                    <div id="editFormFields"></div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Toast de Notificaciones -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

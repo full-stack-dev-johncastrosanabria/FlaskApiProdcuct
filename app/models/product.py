@@ -1,39 +1,72 @@
+from app.database import db
 from datetime import datetime
-import uuid
 
 
-class Product:
-    """Modelo de Producto"""
+class Product(db.Model):
+    """Modelo de Producto con SQLAlchemy"""
     
-    # Simulación de base de datos en memoria
-    _products = {}
+    __tablename__ = 'products'
     
-    def __init__(self, name, price, category, description='', stock=0, product_id=None):
-        self.id = product_id or str(uuid.uuid4())
-        self.name = name
-        self.price = price
-        self.category = category
-        self.description = description
-        self.stock = stock
-        self.created_at = datetime.now().isoformat()
-        self.updated_at = None
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    price = db.Column(db.Numeric(10, 2), nullable=False)
+    stock = db.Column(db.Integer, nullable=False, default=0)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    
+    # Relación con categoría
+    category = db.relationship('Category', backref='products')
+    
+    # Relación con items de orden
+    order_items = db.relationship('OrderItem', backref='product', lazy=True)
+    
+    def __repr__(self):
+        return f'<Product {self.name}>'
     
     def to_dict(self):
         """Convierte el objeto a diccionario"""
         return {
             'id': self.id,
             'name': self.name,
-            'price': self.price,
-            'category': self.category,
             'description': self.description,
+            'price': float(self.price),
             'stock': self.stock,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'category': self.category.name if self.category else None,
+            'category_id': self.category_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
+    
+    @classmethod
+    def get_all(cls, filters=None):
+        """Obtiene todos los productos con filtros opcionales"""
+        query = cls.query
+        
+        if filters:
+            if 'min_price' in filters and filters['min_price'] is not None:
+                query = query.filter(cls.price >= filters['min_price'])
+            
+            if 'max_price' in filters and filters['max_price'] is not None:
+                query = query.filter(cls.price <= filters['max_price'])
+            
+            if 'category' in filters and filters['category']:
+                query = query.join(cls.category).filter(
+                    db.func.lower(Category.name) == filters['category'].lower()
+                )
+        
+        return query.all()
+    
+    @classmethod
+    def get_by_id(cls, product_id):
+        """Obtiene un producto por ID"""
+        return cls.query.get(product_id)
     
     def save(self):
         """Guarda el producto en la base de datos"""
-        Product._products[self.id] = self
+        db.session.add(self)
+        db.session.commit()
         return self
     
     def update(self, **kwargs):
@@ -41,37 +74,16 @@ class Product:
         for key, value in kwargs.items():
             if hasattr(self, key) and key not in ['id', 'created_at']:
                 setattr(self, key, value)
-        self.updated_at = datetime.now().isoformat()
+        self.updated_at = datetime.utcnow()
+        db.session.commit()
         return self
     
     def delete(self):
         """Elimina el producto de la base de datos"""
-        if self.id in Product._products:
-            del Product._products[self.id]
-            return True
-        return False
-    
-    @classmethod
-    def get_all(cls, filters=None):
-        """
-        Obtiene todos los productos con filtros opcionales
-        filters: dict con min_price, max_price, category
-        """
-        products = list(cls._products.values())
-        
-        if filters:
-            if 'min_price' in filters and filters['min_price'] is not None:
-                products = [p for p in products if p.price >= filters['min_price']]
-            
-            if 'max_price' in filters and filters['max_price'] is not None:
-                products = [p for p in products if p.price <= filters['max_price']]
-            
-            if 'category' in filters and filters['category']:
-                products = [p for p in products if p.category.lower() == filters['category'].lower()]
-        
-        return products
-    
-    @classmethod
-    def get_by_id(cls, product_id):
-        """Obtiene un producto por ID"""
-        return cls._products.get(product_id)
+        db.session.delete(self)
+        db.session.commit()
+        return True
+
+
+# Importar Category para evitar errores de referencia circular
+from app.models.category import Category

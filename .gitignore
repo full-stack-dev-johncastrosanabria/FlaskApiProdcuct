@@ -27,6 +27,16 @@ wheels/
 instance/
 .webassets-cache
 
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs
+logs/
+*.log
+
 # IDEs
 .vscode/
 .idea/
@@ -41,3 +51,8 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
