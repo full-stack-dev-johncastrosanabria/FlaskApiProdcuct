@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API REST - Cliente Web</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>API REST Flask - Cliente Moderno</title>
+    <meta name="description" content="Cliente web moderno para API REST Flask con TypeScript">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>🚀 API REST con Flask</h1>
-            <p class="subtitle">Cliente Web de Demostración</p>
+            <p class="subtitle">Cliente Web Moderno con TypeScript</p>
             <div class="health-status" id="healthStatus">
                 <span class="status-indicator"></span>
                 <span class="status-text">Verificando conexión...</span>
@@ -18,22 +18,33 @@
         </header>
 
         <div class="tabs">
-            <button class="tab-button active" data-tab="users">👤 Usuarios</button>
+            <button class="tab-button active" data-tab="dashboard">📊 Dashboard</button>
+            <button class="tab-button" data-tab="users">👤 Usuarios</button>
             <button class="tab-button" data-tab="products">📦 Productos</button>
+            <button class="tab-button" data-tab="advanced-analytics">📈 Análisis Avanzado</button>
+            <button class="tab-button" data-tab="business-intelligence">🧠 Inteligencia de Negocios</button>
+        </div>
+
+        <!-- Tab Dashboard -->
+        <div id="dashboard" class="tab-content active">
+            <div class="section">
+                <h2>📊 Dashboard de Analytics</h2>
+                <p>Métricas en tiempo real de tu negocio</p>
+            </div>
         </div>
 
         <!-- Tab de Usuarios -->
-        <div id="users" class="tab-content active">
+        <div id="users" class="tab-content">
             <div class="section">
                 <h2>Crear Usuario</h2>
                 <form id="createUserForm" class="form">
                     <div class="form-group">
                         <label for="userName">Nombre:</label>
-                        <input type="text" id="userName" required placeholder="Juan Pérez">
+                        <input type="text" id="userName" name="name" required placeholder="Juan Pérez">
                     </div>
                     <div class="form-group">
                         <label for="userEmail">Email:</label>
-                        <input type="email" id="userEmail" required placeholder="juan@example.com">
+                        <input type="email" id="userEmail" name="email" required placeholder="juan@example.com">
                     </div>
                     <button type="submit" class="btn btn-primary">Crear Usuario</button>
                 </form>
@@ -42,7 +53,7 @@
             <div class="section">
                 <div class="section-header">
                     <h2>Lista de Usuarios</h2>
-                    <button class="btn btn-secondary" onclick="loadUsers()">🔄 Actualizar</button>
+                    <button class="btn btn-secondary" onclick="userManager.loadUsers()">🔄 Actualizar</button>
                 </div>
                 <div id="usersList" class="items-list">
                     <p class="loading">Cargando usuarios...</p>
@@ -57,25 +68,27 @@
                 <form id="createProductForm" class="form">
                     <div class="form-group">
                         <label for="productName">Nombre:</label>
-                        <input type="text" id="productName" required placeholder="Laptop">
+                        <input type="text" id="productName" name="name" required placeholder="Laptop">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="productPrice">Precio:</label>
-                            <input type="number" id="productPrice" step="0.01" required placeholder="999.99">
+                            <input type="number" id="productPrice" name="price" step="0.01" required placeholder="999.99">
                         </div>
                         <div class="form-group">
                             <label for="productStock">Stock:</label>
-                            <input type="number" id="productStock" value="0" placeholder="10">
+                            <input type="number" id="productStock" name="stock" value="0" placeholder="10">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="productCategory">Categoría:</label>
-                        <input type="text" id="productCategory" required placeholder="electrónica">
+                        <select id="productCategory" name="category" required>
+                            <option value="">Selecciona una categoría</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="productDescription">Descripción:</label>
-                        <textarea id="productDescription" rows="3" placeholder="Descripción del producto"></textarea>
+                        <textarea id="productDescription" name="description" rows="3" placeholder="Descripción del producto"></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">Crear Producto</button>
                 </form>
@@ -87,13 +100,31 @@
                     <div class="filters">
                         <input type="number" id="minPrice" placeholder="Precio mín" class="filter-input">
                         <input type="number" id="maxPrice" placeholder="Precio máx" class="filter-input">
-                        <input type="text" id="categoryFilter" placeholder="Categoría" class="filter-input">
-                        <button class="btn btn-secondary" onclick="loadProducts()">🔍 Filtrar</button>
+                        <select id="categoryFilter" class="filter-input">
+                            <option value="">Todas las categorías</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="productManager.loadProducts()">🔍 Filtrar</button>
                     </div>
                 </div>
                 <div id="productsList" class="items-list">
                     <p class="loading">Cargando productos...</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Tab de Análisis Avanzado -->
+        <div id="advanced-analytics" class="tab-content">
+            <div class="section">
+                <h2>📈 Análisis Avanzado</h2>
+                <p>Análisis predictivo y segmentación avanzada de datos</p>
+            </div>
+        </div>
+
+        <!-- Tab de Inteligencia de Negocios -->
+        <div id="business-intelligence" class="tab-content">
+            <div class="section">
+                <h2>🧠 Inteligencia de Negocios</h2>
+                <p>KPIs, métricas de conversión y análisis de rentabilidad</p>
             </div>
         </div>
 
@@ -106,16 +137,13 @@
                     <div id="editFormFields"></div>
                     <div class="modal-actions">
                         <button type="submit" class="btn btn-primary">Guardar</button>
-                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('editModal').classList.remove('active')">Cancelar</button>
                     </div>
                 </form>
             </div>
         </div>
-
-        <!-- Toast de Notificaciones -->
-        <div id="toast" class="toast"></div>
     </div>
 
-    <script src="app.js"></script>
+    <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

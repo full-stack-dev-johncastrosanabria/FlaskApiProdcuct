@@ -31,9 +31,9 @@ class DevelopmentConfig(Config):
     SESSION_COOKIE_SECURE = False
     SQLALCHEMY_ECHO = True
     
-    # Base de datos MySQL para desarrollo
+    # Base de datos SQLite para desarrollo (más fácil de usar)
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'mysql+pymysql://root:password@localhost:3306/flask_api_dev'
+        'sqlite:///flask_api.db'
 
 
 class ProductionConfig(Config):

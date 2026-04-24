@@ -1,6 +1,8 @@
 from flask import Blueprint, request
 from app.analytics.sales_analytics import SalesAnalytics
 from app.analytics.inventory_analytics import InventoryAnalytics
+from app.analytics.advanced_analytics import AdvancedAnalytics
+from app.analytics.business_intelligence import BusinessIntelligence
 from app.utils.responses import success_response, error_response
 from datetime import datetime
 
@@ -20,6 +22,16 @@ def get_dashboard():
         })
     except Exception as e:
         return error_response(f'Error al obtener dashboard: {str(e)}', 500)
+
+
+@bp.route('/kpi-dashboard', methods=['GET'])
+def get_kpi_dashboard():
+    """Obtiene dashboard completo de KPIs"""
+    try:
+        kpi_data = BusinessIntelligence.get_kpi_dashboard()
+        return success_response(data=kpi_data)
+    except Exception as e:
+        return error_response(f'Error al obtener KPI dashboard: {str(e)}', 500)
 
 
 @bp.route('/sales/total', methods=['GET'])
@@ -86,6 +98,100 @@ def get_sales_by_category():
         return success_response(data=data, count=len(data))
     except Exception as e:
         return error_response(f'Error al obtener ventas por categoría: {str(e)}', 500)
+
+
+@bp.route('/sales/forecast', methods=['GET'])
+def get_sales_forecast():
+    """Obtiene pronóstico de ventas"""
+    days_ahead = request.args.get('days_ahead', 30, type=int)
+    
+    try:
+        data = AdvancedAnalytics.get_sales_forecast(days_ahead)
+        return success_response(data=data)
+    except Exception as e:
+        return error_response(f'Error al obtener pronóstico: {str(e)}', 500)
+
+
+@bp.route('/customers/cohort-analysis', methods=['GET'])
+def get_cohort_analysis():
+    """Obtiene análisis de cohortes"""
+    months_back = request.args.get('months_back', 12, type=int)
+    
+    try:
+        data = AdvancedAnalytics.get_cohort_analysis(months_back)
+        return success_response(data=data, count=len(data))
+    except Exception as e:
+        return error_response(f'Error al obtener análisis de cohortes: {str(e)}', 500)
+
+
+@bp.route('/customers/rfm-analysis', methods=['GET'])
+def get_rfm_analysis():
+    """Obtiene análisis RFM"""
+    try:
+        data = AdvancedAnalytics.get_rfm_analysis()
+        return success_response(data=data, count=len(data))
+    except Exception as e:
+        return error_response(f'Error al obtener análisis RFM: {str(e)}', 500)
+
+
+@bp.route('/customers/segmentation', methods=['GET'])
+def get_customer_segmentation():
+    """Obtiene segmentación de clientes"""
+    try:
+        data = BusinessIntelligence.get_customer_segmentation()
+        return success_response(data=data)
+    except Exception as e:
+        return error_response(f'Error al obtener segmentación: {str(e)}', 500)
+
+
+@bp.route('/customers/conversion-funnel', methods=['GET'])
+def get_conversion_funnel():
+    """Obtiene embudo de conversión"""
+    try:
+        data = BusinessIntelligence.get_conversion_funnel()
+        return success_response(data=data)
+    except Exception as e:
+        return error_response(f'Error al obtener embudo de conversión: {str(e)}', 500)
+
+
+@bp.route('/products/performance-matrix', methods=['GET'])
+def get_product_performance_matrix():
+    """Obtiene matriz de rendimiento de productos"""
+    try:
+        data = AdvancedAnalytics.get_product_performance_matrix()
+        return success_response(data=data, count=len(data))
+    except Exception as e:
+        return error_response(f'Error al obtener matriz de rendimiento: {str(e)}', 500)
+
+
+@bp.route('/products/abc-analysis', methods=['GET'])
+def get_abc_analysis():
+    """Obtiene análisis ABC"""
+    try:
+        data = BusinessIntelligence.get_abc_analysis()
+        return success_response(data=data)
+    except Exception as e:
+        return error_response(f'Error al obtener análisis ABC: {str(e)}', 500)
+
+
+@bp.route('/sales/seasonal-analysis', methods=['GET'])
+def get_seasonal_analysis():
+    """Obtiene análisis estacional"""
+    try:
+        data = AdvancedAnalytics.get_seasonal_analysis()
+        return success_response(data=data)
+    except Exception as e:
+        return error_response(f'Error al obtener análisis estacional: {str(e)}', 500)
+
+
+@bp.route('/financial/profit-analysis', methods=['GET'])
+def get_profit_analysis():
+    """Obtiene análisis de rentabilidad"""
+    try:
+        data = BusinessIntelligence.get_profit_analysis()
+        return success_response(data=data)
+    except Exception as e:
+        return error_response(f'Error al obtener análisis de rentabilidad: {str(e)}', 500)
 
 
 @bp.route('/inventory/low-stock', methods=['GET'])
