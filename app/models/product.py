@@ -11,8 +11,12 @@ class Product(db.Model):
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
     price = db.Column(db.Numeric(10, 2), nullable=False)
+    cost = db.Column(db.Numeric(10, 2), default=0)  # Costo de producción
     stock = db.Column(db.Integer, nullable=False, default=0)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    sku = db.Column(db.String(100), unique=True)  # Stock Keeping Unit
+    rating = db.Column(db.Numeric(3, 2), default=0)  # Calificación promedio
+    views = db.Column(db.Integer, default=0)  # Número de vistas
     created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, onupdate=lambda: datetime.now(timezone.utc))
     
@@ -32,7 +36,11 @@ class Product(db.Model):
             'name': self.name,
             'description': self.description,
             'price': float(self.price),
+            'cost': float(self.cost) if self.cost else 0,
             'stock': self.stock,
+            'sku': self.sku,
+            'rating': float(self.rating) if self.rating else 0,
+            'views': self.views,
             'category': self.category.name if self.category else None,
             'category_id': self.category_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,

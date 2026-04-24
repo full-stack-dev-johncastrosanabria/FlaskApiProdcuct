@@ -41,7 +41,17 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('API Error:', error);
+    console.error('API Error:', error.message);
+    // Return error response instead of rejecting
+    if (error.response) {
+      return Promise.resolve({
+        data: {
+          success: false,
+          message: error.response.statusText || 'Error',
+          data: null
+        }
+      });
+    }
     return Promise.reject(error);
   }
 );
@@ -250,6 +260,78 @@ export class ApiService {
 
   static async getInventoryValue(): Promise<ApiResponse<{ total_value: number }>> {
     const response: AxiosResponse<ApiResponse<{ total_value: number }>> = await api.get('/analytics/inventory/value');
+    return response.data;
+  }
+
+  // === DASHBOARD INTERACTIVO ===
+  static async get(endpoint: string): Promise<any> {
+    const response = await api.get(endpoint);
+    return response.data;
+  }
+
+  static async getDashboardSummary(): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.get('/dashboard/summary');
+    return response.data;
+  }
+
+  static async getDailySales(): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.get('/dashboard/daily-sales');
+    return response.data;
+  }
+
+  static async getCategorySales(): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.get('/dashboard/category-sales');
+    return response.data;
+  }
+
+  static async getTopProductsChart(): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.get('/dashboard/top-products');
+    return response.data;
+  }
+
+  static async getPaymentMethods(): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.get('/dashboard/payment-methods');
+    return response.data;
+  }
+
+  static async getCustomerGrowth(): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.get('/dashboard/customer-growth');
+    return response.data;
+  }
+
+  static async getInventoryStatus(): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.get('/dashboard/inventory-status');
+    return response.data;
+  }
+
+  static async getRevenueByHour(): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.get('/dashboard/revenue-by-hour');
+    return response.data;
+  }
+
+  static async getProductPerformance(): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.get('/dashboard/product-performance');
+    return response.data;
+  }
+
+  // === AI CHATBOT ===
+  static async askAI(question: string): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.post('/ai/ask', { question });
+    return response.data;
+  }
+
+  static async getAIHistory(): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.get('/ai/history');
+    return response.data;
+  }
+
+  static async clearAIHistory(): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.delete('/ai/history');
+    return response.data;
+  }
+
+  static async getAICapabilities(): Promise<ApiResponse<any>> {
+    const response: AxiosResponse<ApiResponse<any>> = await api.get('/ai/capabilities');
     return response.data;
   }
 }

@@ -23,6 +23,7 @@
             <button class="tab-button" data-tab="products">📦 Productos</button>
             <button class="tab-button" data-tab="advanced-analytics">📈 Análisis Avanzado</button>
             <button class="tab-button" data-tab="business-intelligence">🧠 Inteligencia de Negocios</button>
+            <button class="tab-button" data-tab="ai-chat">🤖 Chat IA</button>
         </div>
 
         <!-- Tab Dashboard -->
@@ -125,6 +126,33 @@
             <div class="section">
                 <h2>🧠 Inteligencia de Negocios</h2>
                 <p>KPIs, métricas de conversión y análisis de rentabilidad</p>
+            </div>
+        </div>
+
+        <!-- Tab de Chat IA -->
+        <div id="ai-chat" class="tab-content">
+            <div class="section">
+                <h2>🤖 Asistente de IA</h2>
+                <p>Pregunta sobre tus datos y obtén respuestas inteligentes</p>
+            </div>
+            
+            <div class="section ai-chat-section">
+                <div id="ai-chat-container" class="ai-chat-container">
+                    <div id="ai-messages" class="ai-messages"></div>
+                    
+                    <div class="ai-input-container">
+                        <textarea 
+                            id="ai-input" 
+                            class="ai-input" 
+                            placeholder="Escribe tu pregunta aquí... (Ej: ¿Cuántas ventas tenemos?)"
+                            rows="1"
+                        ></textarea>
+                        <div class="ai-actions">
+                            <button id="ai-clear-btn" class="btn btn-secondary btn-sm">🗑️ Limpiar</button>
+                            <button id="ai-send-btn" class="btn btn-primary">Enviar 📤</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 

@@ -33,11 +33,23 @@ export class DashboardManager {
       ]);
 
       if (dashboardResponse.success) {
-        this.renderDashboard(dashboardResponse.data, topProductsResponse.data, lowStockResponse.data);
+        // Handle low stock response - it might be an error response
+        const lowStockData = lowStockResponse.success ? lowStockResponse.data : [];
+        this.renderDashboard(dashboardResponse.data, topProductsResponse.data, lowStockData);
       }
     } catch (error) {
-      this.dashboardContainer.innerHTML = '<p class="loading">Error al cargar dashboard</p>';
-      toast.error('Error al cargar dashboard');
+      console.error('Dashboard error:', error);
+      // Still render dashboard with empty low stock data
+      try {
+        const dashboardResponse = await ApiService.getDashboard();
+        const topProductsResponse = await ApiService.getTopProducts(5);
+        if (dashboardResponse.success) {
+          this.renderDashboard(dashboardResponse.data, topProductsResponse.data, []);
+        }
+      } catch (fallbackError) {
+        this.dashboardContainer.innerHTML = '<p class="error">Error al cargar dashboard</p>';
+        toast.error('Error al cargar dashboard');
+      }
     }
   }
 

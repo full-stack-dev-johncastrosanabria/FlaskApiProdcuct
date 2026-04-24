@@ -27,13 +27,15 @@ def create_app(config_name='default'):
     })
     
     # Registrar blueprints
-    from app.routes import users, products, categories, orders, analytics, main
+    from app.routes import users, products, categories, orders, analytics, main, dashboard, ai
     app.register_blueprint(main.bp)
     app.register_blueprint(users.bp)
     app.register_blueprint(products.bp)
     app.register_blueprint(categories.bp)
     app.register_blueprint(orders.bp)
     app.register_blueprint(analytics.bp)
+    app.register_blueprint(dashboard.dashboard_bp)
+    app.register_blueprint(ai.ai_bp)
     
     # Registrar manejadores de errores
     from app.routes import errors

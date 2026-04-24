@@ -11,8 +11,12 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     total = db.Column(db.Numeric(10, 2), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='pending')  # pending, completed, cancelled
+    payment_method = db.Column(db.String(50), default='credit_card')  # credit_card, debit_card, paypal, etc
+    shipping_address = db.Column(db.String(255))
+    notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, onupdate=lambda: datetime.now(timezone.utc))
+    completed_at = db.Column(db.DateTime)  # Fecha de completación
     
     # Relación con items de la orden
     items = db.relationship('OrderItem', backref='order', lazy=True, cascade='all, delete-orphan')

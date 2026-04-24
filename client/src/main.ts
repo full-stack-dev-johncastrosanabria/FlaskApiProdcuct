@@ -3,8 +3,10 @@ import { HealthIndicator } from './components/HealthIndicator';
 import { UserManager } from './components/UserManager';
 import { ProductManager } from './components/ProductManager';
 import { DashboardManager } from './components/DashboardManager';
+import { InteractiveDashboard } from './components/InteractiveDashboard';
 import { AdvancedAnalytics } from './components/AdvancedAnalytics';
 import { BusinessIntelligence } from './components/BusinessIntelligence';
+import { AIChat } from './components/AIChat';
 import { chartManager } from './components/ChartManager';
 import './styles/main.css';
 
@@ -15,8 +17,10 @@ class App {
   private userManager!: UserManager;
   private productManager!: ProductManager;
   private dashboardManager!: DashboardManager;
+  private interactiveDashboard!: InteractiveDashboard;
   private advancedAnalytics!: AdvancedAnalytics;
   private businessIntelligence!: BusinessIntelligence;
+  private aiChat!: AIChat;
 
   constructor() {
     this.init();
@@ -39,15 +43,19 @@ class App {
       this.userManager = new UserManager();
       this.productManager = new ProductManager();
       this.dashboardManager = new DashboardManager();
+      this.interactiveDashboard = new InteractiveDashboard();
       this.advancedAnalytics = new AdvancedAnalytics();
       this.businessIntelligence = new BusinessIntelligence();
+      this.aiChat = new AIChat();
 
       // Exponer managers globalmente para compatibilidad con HTML
       (window as any).userManager = this.userManager;
       (window as any).productManager = this.productManager;
       (window as any).dashboardManager = this.dashboardManager;
+      (window as any).interactiveDashboard = this.interactiveDashboard;
       (window as any).advancedAnalytics = this.advancedAnalytics;
       (window as any).businessIntelligence = this.businessIntelligence;
+      (window as any).aiChat = this.aiChat;
       (window as any).chartManager = chartManager;
 
       // Setup modal
@@ -105,7 +113,10 @@ class App {
     // Cargar datos específicos del tab si es necesario
     switch (tabName) {
       case 'dashboard':
-        // El dashboard se carga automáticamente
+        this.dashboardManager.loadDashboard();
+        break;
+      case 'interactive-dashboard':
+        this.interactiveDashboard.loadDashboard();
         break;
       case 'users':
         // Los usuarios se cargan automáticamente
@@ -118,6 +129,9 @@ class App {
         break;
       case 'business-intelligence':
         // La inteligencia de negocios se carga automáticamente
+        break;
+      case 'ai-chat':
+        // El chat de IA se carga automáticamente
         break;
     }
   }
