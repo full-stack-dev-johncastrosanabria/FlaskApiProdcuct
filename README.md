@@ -661,7 +661,7 @@ El proyecto está completamente funcional. Puedes:
 9. ✅ Ejecutar tests unitarios
 10. ✅ Compilar para producción
 
-**¡Disfruta tu API REST profesional con análisis avanzado, dashboard interactivo y chatbot de IA!** 🚀
+**¡API REST profesional con análisis avanzado, dashboard interactivo y chatbot de IA!** 🚀
 
 ---
 
